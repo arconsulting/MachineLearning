@@ -14,6 +14,8 @@ After a thorough analysis, Random Forest is chosen since it has the lowest expec
 In the provided data, there are 160 columns.  However, many of these are NA or irrelevant to the analysis (i.e. timestamp).  Therefore, the training set is pre-processed into only those columns that may have an effect on the resulting model.
 ```{r}
 library(caret)
+library(doParallel)
+registerDoParallel(cores=2)
 
 # Load data
 setwd('D:\\MOOC\\Data-Science\\Practical-Machine-Learning\\week-3')
@@ -36,7 +38,7 @@ trainVal <- training[-inTrain, ]
 Two different machine learning classification techniques will be evaluated for this project.  The first is Recursive Partitioning and Regression Trees (RPART) and the second is Random Forest (RF).
 
 ###  Recursive Partitioning and Regression Trees (RPART)
-```{r cache=TRUE}
+```{r}
 # Create models
 modFitRpart <- train(classe ~ ., method = "rpart", data = trainTrain)
 modFitRpartAccuracy = train(classe ~ ., method = "rpart", metric = "Accuracy", data = trainTrain)
