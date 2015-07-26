@@ -1,0 +1,62 @@
+---
+title: 'PML: Project'
+author: "Aric Rosenbaum"
+date: "July 26, 2015"
+output: html_document
+---
+
+##Executive Summary
+This analysis will investigate the Human Activity Recognition (HAR) dataset (http://groupware.les.inf.puc-rio.br/har) and apply machine learning to predict the manner in which the subject performed the exercise (i.e."classe") based on a set of observations.  The analysis will investigate multiple models and select the best model.
+
+After a thorough analysis, Random Forest is chosen since it has the lowest expected out of sample error.
+
+##Pre-Process
+In the provided data, there are 160 columns.  However, many of these are NA or irrelevant to the analysis (i.e. timestamp).  Therefore, the training set is pre-processed into only those columns that may have an effect on the resulting model.
+```{r}
+library(caret)
+
+# Load data
+setwd('D:\\MOOC\\Data-Science\\Practical-Machine-Learning\\week-3')
+trainingRaw <- read.csv("pml-training.csv")
+
+# Preprocess: Only incude columns of suspected value
+training <- trainingRaw[, c('roll_belt', 'pitch_belt', 'yaw_belt', 'total_accel_belt', 'gyros_belt_x', 'gyros_belt_y', 'gyros_belt_z', 'accel_belt_x', 'accel_belt_y', 'accel_belt_z', 'magnet_belt_x', 'magnet_belt_y', 'magnet_belt_z', 'roll_arm', 'pitch_arm', 'yaw_arm', 'total_accel_arm', 'gyros_arm_x', 'gyros_arm_y', 'gyros_arm_z', 'accel_arm_x', 'accel_arm_y', 'accel_arm_z', 'magnet_arm_x', 'magnet_arm_y', 'magnet_arm_z', 'roll_dumbbell', 'pitch_dumbbell', 'yaw_dumbbell', 'total_accel_dumbbell', 'gyros_dumbbell_x', 'gyros_dumbbell_y', 'gyros_dumbbell_z', 'accel_dumbbell_x', 'accel_dumbbell_y', 'accel_dumbbell_z', 'magnet_dumbbell_x', 'magnet_dumbbell_y', 'magnet_dumbbell_z', 'roll_forearm', 'pitch_forearm', 'yaw_forearm', 'total_accel_forearm', 'gyros_forearm_x', 'gyros_forearm_y', 'gyros_forearm_z', 'accel_forearm_x', 'accel_forearm_y', 'accel_forearm_z', 'magnet_forearm_x', 'magnet_forearm_y', 'magnet_forearm_z', 'classe')]
+```
+
+Data is then partitioned into a training and validation set.
+```{r}
+# Create traing/validatation
+inTrain <- createDataPartition(y = training$classe, p=0.70, list=FALSE)
+trainTrain <- training[inTrain, ]
+trainVal <- training[-inTrain, ]
+```
+
+##Models
+
+Two different machine learning classification techniques will be evaluated for this project.  The first is Recursive Partitioning and Regression Trees (RPART) and the second is Random Forest (RF).
+
+###  Recursive Partitioning and Regression Trees (RPART)
+```{r cache=TRUE}
+# Create models
+modFitRpart <- train(classe ~ ., method = "rpart", data = trainTrain)
+modFitRpartAccuracy = train(classe ~ ., method = "rpart", metric = "Accuracy", data = trainTrain)
+```
+Appliying the model to the validation set results in an accuracy of `r confusionMatrix(predict(modFitRpart, trainVal), trainVal$classe)$overall[1]`.  Appliying the model to the validation set results in an accuracy of `r confusionMatrix(predict(modFitRpartAccuracy, trainVal), trainVal$classe)$overall[1]`.
+
+### Random Forest
+```{r}
+modFitRf <- train(classe ~ ., data=trainTrain, method="rf", prox=TRUE)
+```
+
+Appliying the model to the validation set results in an accuracy of `r confusionMatrix(predict(modFitRf, trainVal), trainVal$classe)$overall[1]`.
+
+##Model Selection
+The three models result in different accuracies when applied to the held-back validation set.  This serves to estimate the out of sample error:
+```{r}
+rbind(c('RPART', round(confusionMatrix(predict(modFitRpart, trainVal), trainVal$classe)$overall[1], 4)),
+      c('RPART with Accuracy', round(confusionMatrix(predict(modFitRpartAccuracy, trainVal), trainVal$classe)$overall[1], 4)),
+      c('Random Forest', round(confusionMatrix(predict(modFitRf, trainVal), trainVal$classe)$overall[1], 4))
+      )
+```
+
+Given the above results on the training set, random forest is the chosen technique since it provides the highest accuracy.
