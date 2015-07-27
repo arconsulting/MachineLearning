@@ -81,7 +81,16 @@ img {
 <pre><code>## Loading required package: lattice
 ## Loading required package: ggplot2</code></pre>
 <pre><code>## Warning: package 'ggplot2' was built under R version 3.2.1</code></pre>
-<pre class="r"><code># Load data
+<pre class="r"><code>library(doParallel)</code></pre>
+<pre><code>## Warning: package 'doParallel' was built under R version 3.2.1</code></pre>
+<pre><code>## Loading required package: foreach</code></pre>
+<pre><code>## Warning: package 'foreach' was built under R version 3.2.1</code></pre>
+<pre><code>## Loading required package: iterators</code></pre>
+<pre><code>## Warning: package 'iterators' was built under R version 3.2.1</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<pre class="r"><code>registerDoParallel(cores=2)
+
+# Load data
 setwd('D:\\MOOC\\Data-Science\\Practical-Machine-Learning\\week-3')
 trainingRaw &lt;- read.csv(&quot;pml-training.csv&quot;)
 
@@ -102,7 +111,7 @@ trainVal &lt;- training[-inTrain, ]</code></pre>
 modFitRpart &lt;- train(classe ~ ., method = &quot;rpart&quot;, data = trainTrain)</code></pre>
 <pre><code>## Loading required package: rpart</code></pre>
 <pre class="r"><code>modFitRpartAccuracy = train(classe ~ ., method = &quot;rpart&quot;, metric = &quot;Accuracy&quot;, data = trainTrain)</code></pre>
-<p>Appliying the model to the validation set results in an accuracy of 0.4987256. Appliying the model to the validation set results in an accuracy of 0.4987256.</p>
+<p>Appliying the model to the validation set results in an accuracy of 0.4895497. Appliying the model to the validation set results in an accuracy of 0.4895497.</p>
 </div>
 <div id="random-forest" class="section level3">
 <h3>Random Forest</h3>
@@ -111,7 +120,7 @@ modFitRpart &lt;- train(classe ~ ., method = &quot;rpart&quot;, data = trainTrai
 <pre><code>## Warning: package 'randomForest' was built under R version 3.2.1</code></pre>
 <pre><code>## randomForest 4.6-10
 ## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<p>Appliying the model to the validation set results in an accuracy of 0.9112999.</p>
+<p>Appliying the model to the validation set results in an accuracy of 0.9938828.</p>
 </div>
 </div>
 <div id="model-selection" class="section level2">
@@ -122,9 +131,9 @@ modFitRpart &lt;- train(classe ~ ., method = &quot;rpart&quot;, data = trainTrai
       c('Random Forest', round(confusionMatrix(predict(modFitRf, trainVal), trainVal$classe)$overall[1], 4))
       )</code></pre>
 <pre><code>##                            Accuracy
-## [1,] &quot;RPART&quot;               &quot;0.4988&quot;
-## [2,] &quot;RPART with Accuracy&quot; &quot;0.4988&quot;
-## [3,] &quot;Random Forest&quot;       &quot;0.9087&quot;</code></pre>
+## [1,] &quot;RPART&quot;               &quot;0.4895&quot;
+## [2,] &quot;RPART with Accuracy&quot; &quot;0.4895&quot;
+## [3,] &quot;Random Forest&quot;       &quot;0.9939&quot;</code></pre>
 <p>Given the above results on the training set, random forest is the chosen technique since it provides the highest accuracy.</p>
 </div>
 
